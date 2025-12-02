@@ -2,7 +2,7 @@
 
 pub mod dns;
 mod fs_fetch_handler;
-mod proxy;
+pub mod proxy;
 #[cfg(test)]
 mod tests;
 
@@ -894,7 +894,7 @@ impl Resource for HttpClientResource {
 }
 
 impl HttpClientResource {
-  fn new(client: Client, allow_host: bool) -> Self {
+  pub fn new(client: Client, allow_host: bool) -> Self {
     Self { client, allow_host }
   }
 }
@@ -902,17 +902,17 @@ impl HttpClientResource {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateHttpClientArgs {
-  ca_certs: Vec<String>,
-  proxy: Option<Proxy>,
-  pool_max_idle_per_host: Option<usize>,
-  pool_idle_timeout: Option<serde_json::Value>,
+  pub ca_certs: Vec<String>,
+  pub proxy: Option<Proxy>,
+  pub pool_max_idle_per_host: Option<usize>,
+  pub pool_idle_timeout: Option<serde_json::Value>,
   #[serde(default = "default_true")]
-  http1: bool,
+  pub http1: bool,
   #[serde(default = "default_true")]
-  http2: bool,
+  pub http2: bool,
   #[serde(default)]
-  allow_host: bool,
-  local_address: Option<String>,
+  pub allow_host: bool,
+  pub local_address: Option<String>,
 }
 
 fn default_true() -> bool {
@@ -1216,14 +1216,14 @@ pub fn op_utf8_to_byte_string(#[string] input: String) -> ByteString {
 
 #[derive(Clone, Debug)]
 pub struct Client {
-  inner: Decompression<
+  pub inner: Decompression<
     retry::Retry<
       FetchRetry,
       hyper_util::client::legacy::Client<Connector, ReqBody>,
     >,
   >,
-  connector: Connector,
-  user_agent: HeaderValue,
+  pub connector: Connector,
+  pub user_agent: HeaderValue,
 }
 
 #[derive(Debug, thiserror::Error, deno_error::JsError)]
@@ -1495,7 +1495,7 @@ fn op_fetch_promise_is_settled(promise: v8::Local<v8::Promise>) -> bool {
 
 /// Deno.fetch's retry policy.
 #[derive(Clone, Debug)]
-struct FetchRetry;
+pub struct FetchRetry;
 
 /// Marker extension that a request has been retried once.
 #[derive(Clone, Debug)]

@@ -40,15 +40,15 @@ use tokio_vsock::VsockStream;
 use tower_service::Service;
 
 #[derive(Debug, Clone)]
-pub(crate) struct ProxyConnector<C> {
-  pub(crate) http: C,
-  pub(crate) proxies: Arc<Proxies>,
+pub struct ProxyConnector<C> {
+  pub http: C,
+  pub proxies: Arc<Proxies>,
   /// TLS config when destination is not a proxy
-  pub(crate) tls: Arc<TlsConfig>,
+  pub tls: Arc<TlsConfig>,
   /// TLS config when destination is a proxy
   /// Notably, does not include ALPN
-  pub(crate) tls_proxy: Arc<TlsConfig>,
-  pub(crate) user_agent: Option<HeaderValue>,
+  pub tls_proxy: Arc<TlsConfig>,
+  pub user_agent: Option<HeaderValue>,
 }
 
 impl<C> ProxyConnector<C> {
@@ -90,19 +90,19 @@ impl<C> ProxyConnector<C> {
 }
 
 #[derive(Debug)]
-pub(crate) struct Proxies {
+pub struct Proxies {
   no: Option<NoProxy>,
   intercepts: Vec<Intercept>,
 }
 
 #[derive(Clone)]
-pub(crate) struct Intercept {
+pub struct Intercept {
   filter: Filter,
   target: Target,
 }
 
 #[derive(Clone)]
-pub(crate) enum Target {
+pub enum Target {
   Http {
     dst: Uri,
     auth: Option<HeaderValue>,
@@ -137,7 +137,7 @@ enum Filter {
   All,
 }
 
-pub(crate) fn from_env() -> Proxies {
+pub fn from_env() -> Proxies {
   let mut intercepts = Vec::new();
 
   match parse_env_var("ALL_PROXY", Filter::All) {
@@ -209,14 +209,14 @@ fn parse_env_var(name: &str, filter: Filter) -> Option<Intercept> {
 }
 
 impl Intercept {
-  pub(crate) fn all(target: Target) -> Self {
+  pub fn all(target: Target) -> Self {
     Intercept {
       filter: Filter::All,
       target,
     }
   }
 
-  pub(crate) fn set_auth(&mut self, user: &str, pass: &str) {
+  pub fn set_auth(&mut self, user: &str, pass: &str) {
     match self.target {
       Target::Http { ref mut auth, .. } => {
         *auth = Some(basic_auth(user, Some(pass)));
@@ -255,7 +255,7 @@ impl std::fmt::Debug for Intercept {
 }
 
 impl Target {
-  pub(crate) fn parse(val: &str) -> Option<Self> {
+  pub fn parse(val: &str) -> Option<Self> {
     // unix:<path> is valid RFC3986 but not as an http::Uri
     #[cfg(not(windows))]
     if let Some(encoded_path) = val.strip_prefix("unix:") {
@@ -340,17 +340,17 @@ impl Target {
     Some(target)
   }
 
-  pub(crate) fn new_tcp(hostname: String, port: u16) -> Self {
+  pub fn new_tcp(hostname: String, port: u16) -> Self {
     Target::Tcp { hostname, port }
   }
 
   #[cfg(not(windows))]
-  pub(crate) fn new_unix(path: PathBuf) -> Self {
+  pub fn new_unix(path: PathBuf) -> Self {
     Target::Unix { path }
   }
 
   #[cfg(any(target_os = "android", target_os = "linux", target_os = "macos"))]
-  pub(crate) fn new_vsock(cid: u32, port: u32) -> Self {
+  pub fn new_vsock(cid: u32, port: u32) -> Self {
     Target::Vsock { cid, port }
   }
 }
@@ -503,7 +503,7 @@ impl<C> ProxyConnector<C> {
 }
 
 impl Proxies {
-  pub(crate) fn prepend(&mut self, intercept: Intercept) {
+  pub fn prepend(&mut self, intercept: Intercept) {
     self.intercepts.insert(0, intercept);
   }
 

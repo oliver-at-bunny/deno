@@ -1,7 +1,7 @@
 // Copyright 2018-2025 the Deno authors. MIT license.
 
 mod interface;
-mod ops;
+pub mod ops;
 mod std_fs;
 
 use std::borrow::Cow;
