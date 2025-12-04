@@ -17,7 +17,7 @@ deno_core::extension!(
   ],
 );
 
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct PermissionArgs {
   name: String,
   path: Option<String>,
@@ -27,7 +27,7 @@ pub struct PermissionArgs {
   command: Option<String>,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct PermissionStatus {
   state: String,
   partial: bool,
