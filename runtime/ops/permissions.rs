@@ -4,6 +4,7 @@ use ::deno_permissions::PermissionState;
 use ::deno_permissions::PermissionsContainer;
 use deno_core::OpState;
 use deno_core::op2;
+use deno_core::url::Url;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -72,7 +73,23 @@ pub fn op_query_permission(
 ) -> Result<PermissionStatus, PermissionError> {
   let permissions = state.borrow::<PermissionsContainer>();
   let perm = match args.name.as_ref() {
-    "read" => permissions.query_read(args.path.as_deref())?,
+    "read" => {
+      let possible_url = args
+        .path
+        .as_ref()
+        .map(|x| {
+          Url::parse(x)
+            .map(|x| matches!(x.scheme(), "http" | "https"))
+            .unwrap_or_default()
+        })
+        .unwrap_or_default();
+
+      if possible_url {
+        permissions.query_net(args.path.as_deref())?
+      } else {
+        permissions.query_read(args.path.as_deref())?
+      }
+    }
     "write" => permissions.query_write(args.path.as_deref())?,
     "net" => permissions.query_net(args.host.as_deref())?,
     "env" => permissions.query_env(args.variable.as_deref()),
