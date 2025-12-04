@@ -96,6 +96,8 @@ use tower::ServiceExt;
 use tower::retry;
 use tower_http::decompression::Decompression;
 
+use crate::resolver::CustomResolver;
+
 #[derive(Clone)]
 pub struct Options {
   pub user_agent: String,
@@ -1099,7 +1101,7 @@ pub fn create_http_client(
   let tls_config = Arc::from(tls_config);
 
   let mut http_connector =
-    HttpConnector::new_with_resolver(options.dns_resolver.clone());
+    HttpConnector::new_with_resolver(CustomResolver::new());
   http_connector.enforce_http(false);
   if let Some(local_address) = options.local_address {
     let local_addr = local_address
@@ -1277,7 +1279,7 @@ impl Client {
   }
 }
 
-type Connector = proxy::ProxyConnector<HttpConnector<dns::Resolver>>;
+type Connector = proxy::ProxyConnector<HttpConnector<CustomResolver>>;
 
 // clippy is wrong here
 #[allow(clippy::declare_interior_mutable_const)]
