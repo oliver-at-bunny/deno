@@ -3,6 +3,7 @@
 pub mod dns;
 mod fs_fetch_handler;
 pub mod proxy;
+pub mod resolver;
 #[cfg(test)]
 mod tests;
 

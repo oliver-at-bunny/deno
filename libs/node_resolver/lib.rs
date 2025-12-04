@@ -7,7 +7,7 @@ pub mod analyze;
 mod builtin_modules;
 pub mod cache;
 pub mod errors;
-mod npm;
+pub mod npm;
 mod package_json;
 mod path;
 mod resolution;
